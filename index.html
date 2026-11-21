@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>모아모아 정리함 (Cozy Tidy Jam) — 10초 웹 체험판 & 공식 스토어</title>
+  <meta name="description" content="시간제한 ZERO · 강제광고 ZERO! 수채화 동화 진열장 정리 ASMR 퍼즐 〈모아모아 정리함〉을 설치 없이 10초 만에 웹에서 바로 체험해 보세요." />
+  <meta property="og:title" content="모아모아 정리함: 시간제한 없는 ASMR 퍼즐 — 웹 체험판 오픈!" />
+  <meta property="og:description" content="쫓기지 않고 내 속도대로 3개씩 착착! 유리·도자기·베이커리 리얼 ASMR 퍼즐을 지금 웹에서 바로 플레이해 보세요." />
+  <meta property="og:image" content="https://jbm-soft.github.io/cozy-tidy-jam-play/assets/feature_graphic.png" />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/png" href="./assets/app_icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --wood-dark: #2c160c;
+      --wood-mid: #4a2616;
+      --gold: #ffcf5c;
+      --gold-soft: #ffe8a3;
+      --cream: #fff9f0;
+      --coral: #ff7e6b;
+      --mint: #4db685;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 20% 10%, #5e311d 0%, #2c160c 65%, #1c0d07 100%);
+      color: var(--cream);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px 24px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Jua', sans-serif;
+      font-size: 1.35rem;
+      color: var(--gold-soft);
+      text-decoration: none;
+    }
+    .brand img {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 2px solid var(--gold);
+    }
+    .lang-switch {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 207, 92, 0.45);
+      color: var(--gold-soft);
+      padding: 7px 15px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .hero {
+      max-width: 1180px;
+      margin: 12px auto 56px;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 44px;
+      align-items: center;
+    }
+    .badge {
+      display: inline-block;
+      background: linear-gradient(180deg, #ffe285, #ffb938);
+      color: #3a1b0c;
+      font-family: 'Jua', sans-serif;
+      padding: 7px 18px;
+      border-radius: 999px;
+      font-size: 0.98rem;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+    h1 {
+      font-family: 'Jua', sans-serif;
+      font-size: clamp(2.1rem, 4vw, 3.2rem);
+      line-height: 1.22;
+      color: #fffdf7;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+      margin-bottom: 16px;
+    }
+    h1 span { color: var(--gold); }
+    .lead {
+      font-size: 1.08rem;
+      color: #f3e4d3;
+      margin-bottom: 28px;
+      max-width: 540px;
+    }
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .btn-playstore {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(180deg, #ffd463 0%, #ff9f2e 100%);
+      color: #2e1408;
+      font-family: 'Jua', sans-serif;
+      font-size: 1.2rem;
+      padding: 15px 28px;
+      border-radius: 18px;
+      text-decoration: none;
+      box-shadow: 0 8px 24px rgba(255, 166, 48, 0.38), inset 0 2px 0 rgba(255, 255, 255, 0.65);
+      transition: transform 0.15s ease;
+    }
+    .btn-playstore:hover { transform: translateY(-2px); }
+    .btn-fullscreen {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 249, 240, 0.12);
+      border: 2px solid rgba(255, 207, 92, 0.55);
+      color: var(--cream);
+      font-family: 'Jua', sans-serif;
+      font-size: 1.12rem;
+      padding: 14px 22px;
+      border-radius: 18px;
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+    .btn-fullscreen:hover { background: rgba(255, 249, 240, 0.2); }
+    .features-mini {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .f-card {
+      background: rgba(255, 248, 235, 0.07);
+      border: 1px solid rgba(255, 215, 130, 0.22);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+    .f-card strong {
+      display: block;
+      font-family: 'Jua', sans-serif;
+      color: var(--gold-soft);
+      font-size: 1.05rem;
+      margin-bottom: 4px;
+    }
+    .f-card span { font-size: 0.9rem; color: #e6d4c0; }
+
+    /* Interactive Phone Frame */
+    .phone-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .phone-hint {
+      font-family: 'Jua', sans-serif;
+      color: var(--gold);
+      margin-bottom: 10px;
+      font-size: 1.02rem;
+      animation: floaty 2.2s ease-in-out infinite;
+    }
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .phone-bezel {
+      width: 392px;
+      max-width: 92vw;
+      height: 760px;
+      background: #1b0d06;
+      border-radius: 44px;
+      padding: 12px;
+      border: 4px solid #d49b42;
+      box-shadow: 0 26px 60px rgba(0, 0, 0, 0.65);
+      position: relative;
+    }
+    .phone-bezel iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 32px;
+      background: #fff6ea;
+    }
+
+    .showcase {
+      max-width: 1180px;
+      margin: 0 auto 64px;
+      padding: 0 24px;
+    }
+    .showcase h2 {
+      font-family: 'Jua', sans-serif;
+      text-align: center;
+      font-size: 1.9rem;
+      color: var(--gold-soft);
+      margin-bottom: 24px;
+    }
+    .shots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+    }
+    .shots-grid img {
+      width: 100%;
+      border-radius: 20px;
+      border: 2px solid rgba(255, 207, 92, 0.35);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    }
+    footer {
+      text-align: center;
+      padding: 32px 20px 44px;
+      border-top: 1px solid rgba(255, 215, 130, 0.15);
+      color: #bfa892;
+      font-size: 0.9rem;
+    }
+    footer a { color: var(--gold-soft); text-decoration: none; margin: 0 10px; }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; text-align: center; }
+      .lead { margin-left: auto; margin-right: auto; }
+      .cta-row { justify-content: center; }
+      .features-mini { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#">
+      <img src="./assets/app_icon.png" alt="모아모아 정리함 아이콘" />
+      <span id="brandText">모아모아 정리함</span>
+    </a>
+    <button class="lang-switch" id="langBtn" onclick="toggleLang()">🌐 English</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="badge" id="heroBadge">✨ 시간제한 ZERO · 강제광고 ZERO 힐링 퍼즐</div>
+        <h1 id="heroTitle">쫓기지 않고 내 속도대로!<br /><span>수채화 진열장 ASMR 퍼즐</span></h1>
+        <p class="lead" id="heroLead">
+          째깍거리는 타이머 대신 따스한 오르골 선율과 유리·도자기·베이커리 리얼 ASMR 사운드를 담아냈습니다. 오른쪽(모바일은 아래) 화면에서 설치 없이 지금 바로 플레이해 보세요!
+        </p>
+        <div class="cta-row">
+          <a class="btn-playstore" href="https://play.google.com/store/apps/details?id=com.jbmsoft.cozytidyjam" target="_blank" rel="noopener">
+            ▶ <span id="btnStore">Google Play에서 정식 앱 받기</span>
+          </a>
+          <a class="btn-fullscreen" href="./game/" target="_blank" rel="noopener">
+            📱 <span id="btnFull">전체 화면으로 체험하기</span>
+          </a>
+        </div>
+        <div class="features-mini">
+          <div class="f-card">
+            <strong id="f1Title">🕰️ 타이머 스트레스 0%</strong>
+            <span id="f1Desc">시간 제한에 쫓기지 않고 차분하게 3개씩 짝을 맞추는 순수 힐링 설계</span>
+          </div>
+          <div class="f-card">
+            <strong id="f2Title">🎧 재질별 리얼 ASMR</strong>
+            <span id="f2Desc">크리스탈 향수병, 원목 소품, 달콤 마카롱의 맑고 청량한 손맛 사운드</span>
+          </div>
+          <div class="f-card">
+            <strong id="f3Title">🏡 코지 룸 6종 & 다꾸</strong>
+            <span id="f3Desc">별을 모아 카페·다락방·온실을 꾸미고 빗소리와 불멍 백색소음 감상</span>
+          </div>
+          <div class="f-card">
+            <strong id="f4Title">🐾 단골 동물 손님 손편지</strong>
+            <span id="f4Desc">치즈냥이 모찌와 단골 동물 이웃들이 보내오는 따뜻한 진심 편지 도감</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-wrap">
+        <div class="phone-hint" id="phoneHint">👇 지금 바로 화면을 터치해 정리해 보세요! (설치 불필요)</div>
+        <div class="phone-bezel">
+          <iframe src="./game/" title="Cozy Tidy Jam Playable Web Trial" allow="autoplay"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section class="showcase">
+      <h2 id="galleryTitle">미리 보는 〈모아모아 정리함〉</h2>
+      <div class="shots-grid">
+        <img src="./assets/screenshot_1.png" alt="수채화 진열장 퍼즐" loading="lazy" />
+        <img src="./assets/screenshot_2.png" alt="나만의 아늑한 코지 룸" loading="lazy" />
+        <img src="./assets/screenshot_3.png" alt="단골손님과 감사 손편지" loading="lazy" />
+        <img src="./assets/screenshot_4.png" alt="연속 콤보 피버 & 주간 랭킹" loading="lazy" />
+        <img src="./assets/screenshot_5.png" alt="도토리 캡슐 뽑기" loading="lazy" />
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 JBMSOFT. All rights reserved.</p>
+    <p style="margin-top: 8px;">
+      <a href="https://jbm-soft.github.io/cozy-tidy-jam-privacy/" target="_blank" rel="noopener">개인정보처리방침 (Privacy Policy)</a> |
+      <a href="https://jbm-soft.github.io/cozy-tidy-jam-privacy/terms.html" target="_blank" rel="noopener">이용약관 (Terms of Service)</a> |
+      <a href="mailto:jaewon@jbmsoft.co.kr">문의: jaewon@jbmsoft.co.kr</a>
+    </p>
+  </footer>
+
+  <script>
+    let isEn = false;
+    function toggleLang() {
+      isEn = !isEn;
+      document.getElementById('langBtn').textContent = isEn ? '🌐 한국어' : '🌐 English';
+      document.getElementById('brandText').textContent = isEn ? 'Cozy Tidy Jam' : '모아모아 정리함';
+      document.getElementById('heroBadge').textContent = isEn
+        ? '✨ NO TIMERS · NO FORCED ADS COZY PUZZLE'
+        : '✨ 시간제한 ZERO · 강제광고 ZERO 힐링 퍼즐';
+      document.getElementById('heroTitle').innerHTML = isEn
+        ? 'Tidy at Your Own Pace!<br /><span>Watercolor Shelf ASMR Puzzle</span>'
+        : '쫓기지 않고 내 속도대로!<br /><span>수채화 진열장 ASMR 퍼즐</span>';
+      document.getElementById('heroLead').textContent = isEn
+        ? 'No ticking clocks—just gentle music-box melodies and crisp glass, ceramic, and bakery ASMR chimes. Try the live playable demo right here with zero install!'
+        : '째깍거리는 타이머 대신 따스한 오르골 선율과 유리·도자기·베이커리 리얼 ASMR 사운드를 담아냈습니다. 오른쪽(모바일은 아래) 화면에서 설치 없이 지금 바로 플레이해 보세요!';
+      document.getElementById('btnStore').textContent = isEn ? 'Get Full App on Google Play' : 'Google Play에서 정식 앱 받기';
+      document.getElementById('btnFull').textContent = isEn ? 'Play Fullscreen Demo' : '전체 화면으로 체험하기';
+      document.getElementById('phoneHint').textContent = isEn
+        ? '👇 Tap inside the phone below to play right now!'
+        : '👇 지금 바로 화면을 터치해 정리해 보세요! (설치 불필요)';
+      document.getElementById('f1Title').textContent = isEn ? '🕰️ Zero Timer Stress' : '🕰️ 타이머 스트레스 0%';
+      document.getElementById('f1Desc').textContent = isEn
+        ? 'Match 3 watercolor treasures calmly at your own cozy rhythm.'
+        : '시간 제한에 쫓기지 않고 차분하게 3개씩 짝을 맞추는 순수 힐링 설계';
+      document.getElementById('f2Title').textContent = isEn ? '🎧 Real Material ASMR' : '🎧 재질별 리얼 ASMR';
+      document.getElementById('f2Desc').textContent = isEn
+        ? 'Satisfying crystal clinks, wooden taps, and sweet bakery chimes.'
+        : '크리스탈 향수병, 원목 소품, 달콤 마카롱의 맑고 청량한 손맛 사운드';
+      document.getElementById('f3Title').textContent = isEn ? '🏡 6 Cozy Rooms & Stickers' : '🏡 코지 룸 6종 & 다꾸';
+      document.getElementById('f3Desc').textContent = isEn
+        ? 'Decorate sunlit cafes & cat lofts with rain & fireplace ambience.'
+        : '별을 모아 카페·다락방·온실을 꾸미고 빗소리와 불멍 백색소음 감상';
+      document.getElementById('f4Title').textContent = isEn ? '🐾 Animal Regulars & Letters' : '🐾 단골 동물 손님 손편지';
+      document.getElementById('f4Desc').textContent = isEn
+        ? 'Collect heartfelt letters from Mochi the cat and cozy woodland regulars.'
+        : '치즈냥이 모찌와 단골 동물 이웃들이 보내오는 따뜻한 진심 편지 도감';
+      document.getElementById('galleryTitle').textContent = isEn ? 'Inside Cozy Tidy Jam' : '미리 보는 〈모아모아 정리함〉';
+    }
+  </script>
+</body>
+</html>

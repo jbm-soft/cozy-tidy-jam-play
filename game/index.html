@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <base href="/cozy-tidy-jam-play/game/">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="모아모아 정리함 (Cozy Tidy Jam) - 시간제한 없는 ASMR 감성 정리 퍼즐">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="모아모아 정리함">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <title>모아모아 정리함 · Cozy Tidy Jam</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #FFF5F7 0%, #F3ECF8 100%);
+      overflow: hidden;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Malgun Gothic", sans-serif;
+    }
+    #cozy-boot-loader {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #FFF5F7 0%, #FFE8EE 100%);
+      z-index: 9999;
+      transition: opacity 0.35s ease;
+    }
+    .cozy-dot {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 4px solid #F8BBD0;
+      border-top-color: #EC407A;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Non-blocking Cozy Payment / Ad Overlay for Web Preview (no ugly window.confirm!) */
+    #cozy-sdk-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(45, 34, 53, 0.48);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 20px;
+    }
+    .cozy-sdk-sheet {
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 26px;
+      padding: 24px;
+      max-width: 340px;
+      width: 100%;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+      text-align: center;
+    }
+    .cozy-sdk-btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .cozy-sdk-btn {
+      flex: 1;
+      border: none;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+  </style>
+  <script>
+    function showCozySdkSheet({ title, subtitle, confirmLabel, cancelLabel }) {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('cozy-sdk-modal');
+        document.getElementById('cozy-sdk-title').textContent = title;
+        document.getElementById('cozy-sdk-sub').textContent = subtitle;
+        const okBtn = document.getElementById('cozy-sdk-ok');
+        const noBtn = document.getElementById('cozy-sdk-cancel');
+        okBtn.textContent = confirmLabel || '확인';
+        noBtn.textContent = cancelLabel || '취소';
+        noBtn.style.display = cancelLabel ? 'block' : 'none';
+        modal.style.display = 'flex';
+
+        const cleanup = (val) => {
+          modal.style.display = 'none';
+          okBtn.onclick = null;
+          noBtn.onclick = null;
+          resolve(val);
+        };
+        okBtn.onclick = () => cleanup(true);
+        noBtn.onclick = () => cleanup(false);
+      });
+    }
+
+    // Unlock WebAudio context on first touch for iOS/Android WebView compliance
+    window.addEventListener('pointerdown', function unlockAudioOnce() {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (Ctx) {
+          const ctx = new Ctx();
+          ctx.resume().then(() => ctx.close());
+        }
+      } catch (_) {}
+      window.removeEventListener('pointerdown', unlockAudioOnce);
+    }, { passive: true });
+
+    window.CozyTossBridge = {
+      isTossEnv: /TossApp|intoss/i.test(navigator.userAgent) || Boolean(window.__APPS_IN_TOSS__),
+
+      async getUserKey() {
+        try {
+          if (window.AppsInToss && typeof window.AppsInToss.getUserKeyForGame === 'function') {
+            const res = await window.AppsInToss.getUserKeyForGame();
+            return res && res.hash ? String(res.hash) : 'toss_guest';
+          }
+        } catch (e) {
+          console.warn('AppsInToss getUserKey fallback:', e);
+        }
+        let localId = localStorage.getItem('cozy_jam_uid');
+        if (!localId) {
+          localId = 'usr_' + Math.random().toString(36).slice(2, 11);
+          localStorage.setItem('cozy_jam_uid', localId);
+        }
+        return localId;
+      },
+
+      async showRewardedAd(placement) {
+        try {
+          if (window.AppsInToss && typeof window.AppsInToss.showRewardedAd === 'function') {
+            const result = await window.AppsInToss.showRewardedAd({ adGroupId: placement });
+            return Boolean(result && result.rewarded);
+          }
+        } catch (e) {
+          console.warn('AppsInToss Ad error:', e);
+          return false;
+        }
+        // Clean in-app preview reward sheet when testing outside Toss app
+        return await showCozySdkSheet({
+          title: '🎁 보상형 광고 미리보기',
+          subtitle: '실제 출시 시 AdMob / 앱인토스 보상형 광고가 재생된 뒤 보상이 지급됩니다.',
+          confirmLabel: '보상 즉시 받기',
+          cancelLabel: '닫기'
+        });
+      },
+
+      async requestTossPay(sku, displayPrice) {
+        try {
+          if (window.AppsInToss && typeof window.AppsInToss.checkoutPayment === 'function') {
+            const order = await window.AppsInToss.checkoutPayment({ sku, displayPrice });
+            return Boolean(order && order.success);
+          }
+        } catch (e) {
+          console.warn('TossPay checkout cancelled:', e);
+          return false;
+        }
+        return await showCozySdkSheet({
+          title: '💳 인앱 결제 시뮬레이터',
+          subtitle: `${sku} (${displayPrice}) — 출시 시 토스페이 / Google Play 결제가 호출됩니다.`,
+          confirmLabel: '테스트 결제 승인',
+          cancelLabel: '취소'
+        });
+      },
+
+      async saveOrSharePngBase64(base64Png, fileName, shareText) {
+        try {
+          const byteChars = atob(base64Png);
+          const bytes = new Uint8Array(byteChars.length);
+          for (let i = 0; i < byteChars.length; i++) {
+            bytes[i] = byteChars.charCodeAt(i);
+          }
+          const blob = new Blob([bytes], { type: 'image/png' });
+          const file = new File([blob], fileName, { type: 'image/png' });
+
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ title: '모아모아 정리함', text: shareText, files: [file] });
+            return true;
+          }
+
+          // Direct high-res PNG download
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1500);
+          return true;
+        } catch (e) {
+          console.warn('PNG share/download fallback:', e);
+          return false;
+        }
+      },
+
+      closeMiniApp() {
+        if (window.AppsInToss && typeof window.AppsInToss.closeView === 'function') {
+          window.AppsInToss.closeView();
+        } else {
+          window.close();
+        }
+      }
+    };
+
+    window.addEventListener('flutter-first-frame', function () {
+      const loader = document.getElementById('cozy-boot-loader');
+      if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 360);
+      }
+    });
+  </script>
+</head>
+<body>
+  <div id="cozy-boot-loader">
+    <div class="cozy-dot"></div>
+    <p style="margin-top:14px; color:#5D4E68; font-size:14px; font-weight:700;">
+      모아모아 선반 여는 중...
+    </p>
+  </div>
+
+  <div id="cozy-sdk-modal">
+    <div class="cozy-sdk-sheet">
+      <div id="cozy-sdk-title" style="font-size:17px; font-weight:900; color:#3E3545;"></div>
+      <p id="cozy-sdk-sub" style="font-size:13px; color:#6E6278; margin:10px 0 0; line-height:1.5;"></p>
+      <div class="cozy-sdk-btn-row">
+        <button id="cozy-sdk-cancel" class="cozy-sdk-btn" style="background:#F3EDF7; color:#5D4E68;">취소</button>
+        <button id="cozy-sdk-ok" class="cozy-sdk-btn" style="background:#EC407A; color:#FFFFFF;">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
